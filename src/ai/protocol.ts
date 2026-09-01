@@ -1,16 +1,22 @@
-import type { ModelId } from './models';
+import type { Dtype, ModelId } from './models';
 import type { Stage } from './prompt';
 
 export type Backend = 'webgpu' | 'wasm';
 
 export type WorkerRequest =
   | { readonly kind: 'probe' }
-  | { readonly kind: 'load'; readonly model: ModelId }
+  | {
+      readonly kind: 'load';
+      readonly model: ModelId;
+      readonly repo: string;
+      readonly dtype: Dtype;
+      readonly label: string;
+    }
   | { readonly kind: 'translate'; readonly ticket: string; readonly phrase: string }
   | { readonly kind: 'interrupt' };
 
 export type WorkerResponse =
-  | { readonly kind: 'backend'; readonly backend: Backend }
+  | { readonly kind: 'backend'; readonly backend: Backend; readonly vram: number }
   | { readonly kind: 'fetching'; readonly percent: number; readonly loaded: number; readonly total: number }
   | { readonly kind: 'compiling' }
   | { readonly kind: 'ready' }

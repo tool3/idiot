@@ -19,6 +19,7 @@ export const App = () => {
 
   const { entries, status, backend, model, busy, ask, choose, clear } = translator;
   const spec = modelById(model);
+  const chipLabel = model === 'custom' ? translator.customRepo.split('/').pop() : `${spec.name} ${spec.params}`;
   const live = status.phase === 'ready';
 
   const submit = (phrase: string) => {
@@ -40,7 +41,7 @@ export const App = () => {
           )}
           {live && (
             <button type="button" className={styles.chip} onClick={() => choose(model)}>
-              {spec.name} {spec.params}
+              {chipLabel}
               <span className={styles.backend}>{backend}</span>
             </button>
           )}
@@ -57,7 +58,7 @@ export const App = () => {
             ) : (
               <div className={styles.transcript}>
                 {entries.map((entry) => (
-                  <Entry key={entry.ticket} entry={entry} modelLabel={`${spec.name} ${spec.params}`} />
+                  <Entry key={entry.ticket} entry={entry} modelLabel={chipLabel ?? ''} />
                 ))}
               </div>
             )
@@ -65,8 +66,11 @@ export const App = () => {
             <Warmup
               status={status}
               backend={backend}
+              vram={translator.vram}
               model={model}
+              customRepo={translator.customRepo}
               onChoose={choose}
+              onCustomRepo={translator.setCustomRepo}
               onStart={translator.summon}
             />
           )}

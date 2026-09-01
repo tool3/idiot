@@ -162,11 +162,36 @@ const capSentences = (text: string, limit: number): string => {
 
 const sentenceCase = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
 
+const LOOP_SPANS = [1, 2, 3, 4] as const;
+
+const loopStart = (words: readonly string[]): number => {
+  const same = (a: number, b: number, span: number) =>
+    Array.from({ length: span }, (_, k) => k).every(
+      (k) => words[a + k]?.toLowerCase() === words[b + k]?.toLowerCase(),
+    );
+
+  const found = words.flatMap((_, index) =>
+    LOOP_SPANS.filter(
+      (span) =>
+        index + span * 3 <= words.length &&
+        same(index, index + span, span) &&
+        same(index, index + span * 2, span),
+    ).map((span) => index + span),
+  );
+  return found.length > 0 ? Math.min(...found) : words.length;
+};
+
+const stopLoop = (text: string): string => {
+  const words = text.split(/\s+/);
+  const cut = loopStart(words);
+  return cut >= words.length ? text : `${words.slice(0, cut).join(' ').replace(/[,;:\s]+$/, '')}.`;
+};
+
 const terminate = (text: string): string =>
   text.length > 0 && !/[.!?]$/.test(text) ? `${text}.` : text;
 
 const strip = (raw: string): string =>
-  unwrapQuotes(firstBlock(raw.trim())).replace(LABEL, '').replace(PREAMBLE, '').trim();
+  stopLoop(unwrapQuotes(firstBlock(raw.trim())).replace(LABEL, '').replace(PREAMBLE, '').trim());
 
 export const tidy = (stage: Stage, raw: string): string =>
   stage === 'repair'

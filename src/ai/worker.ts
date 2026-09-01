@@ -7,7 +7,7 @@ import {
   type PreTrainedTokenizer,
   type ProgressInfo,
 } from '@huggingface/transformers';
-import { modelById, type ModelId } from './models';
+import type { Build } from './models';
 import {
   acceptableRepair,
   buildMessages,
@@ -30,15 +30,21 @@ const CANARY = 'it costs an arm and a leg';
 const FIGURATIVE_READINGS: readonly Stage[] = ['meaning', 'literal', 'example'];
 const PLAIN_READINGS: readonly Stage[] = ['meaning'];
 
-const engines = new Map<ModelId, Promise<Engine>>();
+const engines = new Map<string, Promise<Engine>>();
 const active = new Map<'engine', Engine>();
 
 const post = self.postMessage.bind(self) as (message: WorkerResponse) => void;
 
 const reply = (message: WorkerResponse) => post(message);
 
-const detectBackend = async (): Promise<Backend> =>
-  'gpu' in navigator && (await navigator.gpu.requestAdapter().catch(() => null)) ? 'webgpu' : 'wasm';
+type Probe = { readonly backend: Backend; readonly vram: number };
+
+const detectBackend = async (): Promise<Probe> => {
+  const adapter = 'gpu' in navigator ? await navigator.gpu.requestAdapter().catch(() => null) : null;
+  return adapter
+    ? { backend: 'webgpu', vram: Math.round(adapter.limits.maxStorageBufferBindingSize / 1048576) }
+    : { backend: 'wasm', vram: 0 };
+};
 
 const relayProgress = (info: ProgressInfo) =>
   info.status === 'progress_total'
@@ -85,15 +91,14 @@ const isGarbled = (text: string): boolean => {
   return trimmed.replace(/[^a-z]/gi, '').length < 4 || new Set(trimmed.replace(/\s/g, '')).size <= 2;
 };
 
-const createEngine = async (id: ModelId): Promise<Engine> => {
-  const backend = await detectBackend();
-  reply({ kind: 'backend', backend });
+const createEngine = async (build: Build, label: string): Promise<Engine> => {
+  const { backend, vram } = await detectBackend();
+  reply({ kind: 'backend', backend, vram });
 
-  const spec = modelById(id);
   const [tokenizer, model] = await Promise.all([
-    AutoTokenizer.from_pretrained(spec.repo, { progress_callback: relayProgress }),
-    AutoModelForCausalLM.from_pretrained(spec.repo, {
-      dtype: backend === 'webgpu' ? 'q4f16' : 'q4',
+    AutoTokenizer.from_pretrained(build.repo, { progress_callback: relayProgress }),
+    AutoModelForCausalLM.from_pretrained(build.repo, {
+      dtype: build.dtype,
       device: backend,
       progress_callback: relayProgress,
     }),
@@ -105,18 +110,19 @@ const createEngine = async (id: ModelId): Promise<Engine> => {
   if (isGarbled(await run(engine, 'meaning', CANARY, () => {}))) {
     await model.dispose();
     throw new Error(
-      `${spec.name} ${spec.params} came back garbled on this device, which happens when a model's ` +
-        'half-precision build misbehaves on the GPU. Pick a different model.',
+      `${label} came back garbled on this device, which happens when a model's half-precision ` +
+        'build misbehaves on the GPU. Pick a different model.',
     );
   }
   return engine;
 };
 
-const load = async (id: ModelId) => {
-  const pending = engines.get(id) ?? createEngine(id);
-  engines.set(id, pending);
+const load = async (build: Build, label: string) => {
+  const key = `${build.repo}#${build.dtype}`;
+  const pending = engines.get(key) ?? createEngine(build, label);
+  engines.set(key, pending);
   const engine = await pending.catch((error: unknown) => {
-    engines.delete(id);
+    engines.delete(key);
     throw error;
   });
   active.set('engine', engine);
@@ -182,8 +188,12 @@ const translate = async (ticket: string, phrase: string) => {
 };
 
 const handle = async (request: WorkerRequest): Promise<unknown> => {
-  if (request.kind === 'probe') return reply({ kind: 'backend', backend: await detectBackend() });
-  if (request.kind === 'load') return load(request.model);
+  if (request.kind === 'probe') return reply({ kind: 'backend', ...(await detectBackend()) });
+  if (request.kind === 'load')
+    return load(
+      { repo: request.repo, dtype: request.dtype, megabytes: 0 },
+      request.label,
+    );
   if (request.kind === 'translate') return translate(request.ticket, request.phrase);
   return active.get('engine')?.stopper.interrupt();
 };

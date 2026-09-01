@@ -26,7 +26,9 @@ export type Entry = {
 export type State = {
   readonly status: Status;
   readonly backend: Backend | null;
+  readonly vram: number;
   readonly model: ModelId;
+  readonly customRepo: string;
   readonly chosen: boolean;
   readonly entries: readonly Entry[];
   readonly pending: string | null;
@@ -36,6 +38,7 @@ export type Action =
   | WorkerResponse
   | { readonly kind: 'ask'; readonly ticket: string; readonly phrase: string }
   | { readonly kind: 'switch'; readonly model: ModelId }
+  | { readonly kind: 'custom-repo'; readonly repo: string }
   | { readonly kind: 'clear' };
 
 const BLANK: Reading = { draft: '', text: null };
@@ -43,7 +46,9 @@ const BLANK: Reading = { draft: '', text: null };
 export const initialState: State = {
   status: { phase: 'cold' },
   backend: null,
+  vram: 0,
   model: defaultFor(null),
+  customRepo: '',
   chosen: false,
   entries: [],
   pending: null,
@@ -76,6 +81,7 @@ export const reduce = (state: State, action: Action): State => {
       return {
         ...state,
         backend: action.backend,
+        vram: action.vram,
         model: state.chosen ? state.model : defaultFor(action.backend),
       };
     case 'fetching':
@@ -89,6 +95,8 @@ export const reduce = (state: State, action: Action): State => {
       return { ...state, status: { phase: 'ready' } };
     case 'switch':
       return { ...state, model: action.model, chosen: true, status: { phase: 'cold' }, pending: null };
+    case 'custom-repo':
+      return { ...state, customRepo: action.repo };
     case 'clear':
       return { ...state, entries: [], pending: null };
     case 'ask':

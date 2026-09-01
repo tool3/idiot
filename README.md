@@ -42,11 +42,39 @@ First load asks which model to fetch, then downloads it. Nothing is fetched unti
 
 ## Models
 
-| Option | Repo | WebGPU | CPU | Quality |
+Three curated options, plus **any Hugging Face repo with an ONNX build** — paste an id and the app
+reads the available precisions and download size straight from the repo, preferring `q4f16` on
+WebGPU and `q4` on CPU. Bad ids, and repos with no ONNX weights, fail immediately with a plain
+error instead of a doomed download.
+
+| Option | Repo | Size | Card | Quality |
 | --- | --- | --- | --- | --- |
-| SmolLM2 1.7B *(default on GPU)* | `HuggingFaceTB/SmolLM2-1.7B-Instruct` | 1057 MB | 1347 MB | 10/10 on the test set |
-| Gemma 3 1B | `onnx-community/gemma-3-1b-it-ONNX` | 728 MB | 819 MB | ~7/10, quickest of the useful ones |
-| SmolLM2 360M *(default on CPU)* | `HuggingFaceTB/SmolLM2-360M-Instruct` | 260 MB | 370 MB | Mostly guessing |
+| Llama 3.2 3B | `onnx-community/Llama-3.2-3B-Instruct-ONNX` | 2296 MB | ~2.6 s | **12/12.** Gets the rare ones |
+| SmolLM2 1.7B *(default on GPU)* | `HuggingFaceTB/SmolLM2-1.7B-Instruct` | 1057 MB | ~1.5 s | 10/12 |
+| Gemma 3 1B | `onnx-community/gemma-3-1b-it-ONNX` | 728 MB | ~1.4 s | ~7/12 |
+| SmolLM2 360M *(default on CPU)* | `HuggingFaceTB/SmolLM2-360M-Instruct` | 260 MB | — | Mostly guessing |
+
+1.7B stays the default: 2.3 GB is a lot to ask up front, and the 3B needs a GPU that can allocate
+it. The picker reports the device's actual `maxStorageBufferBindingSize` and flags any model
+larger than it.
+
+### What else was tried
+
+The shortlist is small because the constraints are narrow: a transformers.js-supported
+architecture, an ONNX build that is numerically sound on WebGPU, and a size the GPU will actually
+allocate. Everything below was measured on the same twelve-phrase set, not guessed at.
+
+| Candidate | q4f16 | Verdict |
+| --- | --- | --- |
+| `Qwen2.5-1.5B-Instruct` | 1165 MB | 10/10 on CPU, but the WebGPU build returns NaN logits — a wall of `!` |
+| `Llama-3.2-1B-Instruct-ONNX` | 1039 MB | 6/12. Misses `break a leg` despite it being a few-shot example |
+| `Qwen3-0.6B-ONNX` (thinking off) | 543 MB | 1/12. Reasoning models are poor at recall without their thinking budget |
+| `Qwen2.5-0.5B-Instruct` | 461 MB | 3/10, and falls into repetition loops |
+| `Qwen3-4B-Instruct-2507` | 2756 MB | Not tested — past what most GPUs will allocate |
+| `Phi-4-mini-instruct` | 2433 MB | Not tested — same reason |
+
+Because a weak custom model can loop (`"A long, well, long, well, long, well…"`), `stopLoop`
+detects a 1–4 word span repeating three times and truncates at the first repeat.
 
 Two things drove this lineup.
 
@@ -120,9 +148,10 @@ answer; a false "figurative" on a plain sentence just adds an odd literal readin
 
 ## Known ceiling
 
-Rare, regional or vulgar idioms are past what a 1.7B model knows. *"Well slap my ass and call me
-Sally"* still comes back as agreement rather than astonishment, and no prompt fixes that — the
-knowledge is not in the weights. The obvious escape hatch is grounding the answer in a real
+Rare, regional or vulgar idioms are past what a 1.7B model knows — *"well slap my ass and call me
+Sally"* comes back as agreement rather than astonishment. Llama 3.2 3B does get it
+(*"expressing shock, outrage or strong disagreement"*), so on this axis the fix is simply a bigger
+model rather than a better prompt. The obvious escape hatch is grounding the answer in a real
 dictionary: `en.wiktionary.org`'s REST API is CORS-open, needs no key, and has clean entries for
 *break a leg*, *blood is thicker than water* and *the best thing since sliced bread*. That would
 trade the offline guarantee for correctness on the long tail. Deliberately not wired up.
