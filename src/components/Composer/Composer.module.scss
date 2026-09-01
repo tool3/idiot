@@ -9,13 +9,12 @@
   align-items: end;
   padding: 0.6875rem 0.875rem;
   border-radius: $radius;
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--hairline);
-  transition: box-shadow 0.2s $ease, background 0.2s $ease;
+  background: var(--card-fill);
+  box-shadow: var(--card-ring), var(--card-shadow);
+  transition: box-shadow 0.25s $ease, background 0.25s $ease;
 
   &:focus-within {
-    background: var(--surface-2);
-    box-shadow: inset 0 0 0 1.5px var(--accent);
+    box-shadow: inset 0 0 0 1.5px var(--accent), var(--card-shadow), var(--glow);
   }
 }
 
@@ -72,7 +71,7 @@
   width: 1.875rem;
   height: 1.875rem;
   border-radius: 50%;
-  transition: background 0.2s $ease, opacity 0.2s $ease, transform 0.15s $ease;
+  transition: background 0.2s $ease, opacity 0.2s $ease, transform 0.2s $spring;
 
   svg {
     width: 1rem;
@@ -85,7 +84,7 @@
 }
 
 .send {
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--on-accent);
 
   &:disabled {

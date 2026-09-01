@@ -1,0 +1,44 @@
+:root[data-design='deep'] {
+  --radius-scale: 1;
+}
+
+:root[data-design='deep'][data-theme='ink'],
+:root[data-design='deep']:not([data-theme='slate']):not([data-theme='paper']) {
+  --surface: #131316;
+  --surface-2: #1d1d21;
+  --wash:
+    radial-gradient(120% 70% at 50% -10%, rgba(10, 132, 255, 0.20), transparent 60%),
+    radial-gradient(90% 50% at 100% 0%, rgba(100, 210, 255, 0.10), transparent 55%);
+  --card-fill: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.022));
+  --card-ring: inset 0 0 0 1px rgba(255, 255, 255, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 32px -12px rgba(0, 0, 0, 0.7);
+  --accent-fill: linear-gradient(135deg, #0a84ff, #64d2ff);
+  --glow: 0 0 18px rgba(10, 132, 255, 0.55);
+}
+
+:root[data-design='deep'][data-theme='slate'] {
+  --surface: #1a212b;
+  --surface-2: #232c38;
+  --wash:
+    radial-gradient(120% 70% at 50% -10%, rgba(110, 155, 255, 0.22), transparent 60%),
+    radial-gradient(90% 50% at 0% 0%, rgba(159, 125, 255, 0.13), transparent 55%);
+  --card-fill: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025));
+  --card-ring: inset 0 0 0 1px rgba(180, 200, 230, 0.1), inset 0 1px 0 rgba(200, 218, 255, 0.12);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.42), 0 14px 34px -14px rgba(0, 0, 0, 0.6);
+  --accent-fill: linear-gradient(135deg, #6e9bff, #9f7dff);
+  --glow: 0 0 18px rgba(110, 155, 255, 0.5);
+}
+
+:root[data-design='deep'][data-theme='paper'] {
+  --surface: #ffffff;
+  --surface-2: #f4f4f7;
+  --bg: #f7f7f9;
+  --wash:
+    radial-gradient(120% 70% at 50% -10%, rgba(0, 113, 227, 0.13), transparent 60%),
+    radial-gradient(90% 50% at 100% 0%, rgba(94, 92, 230, 0.08), transparent 55%);
+  --card-fill: linear-gradient(180deg, #ffffff, #fbfbfd);
+  --card-ring: inset 0 0 0 1px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 12px 28px -12px rgba(0, 0, 0, 0.18);
+  --accent-fill: linear-gradient(135deg, #0071e3, #5e5ce6);
+  --glow: 0 0 16px rgba(0, 113, 227, 0.3);
+}

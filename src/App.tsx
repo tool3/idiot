@@ -8,12 +8,14 @@ import { ThemeSwitch } from '@/components/ThemeSwitch/ThemeSwitch';
 import { Warmup } from '@/components/Warmup/Warmup';
 import { Wordmark } from '@/components/Wordmark/Wordmark';
 import { useStickToBottom } from '@/hooks/useStickToBottom';
+import { useDesign } from '@/theme/useDesign';
 import { useTheme } from '@/theme/useTheme';
 import styles from './App.module.scss';
 
 export const App = () => {
   const translator = useTranslator();
   const [theme, chooseTheme] = useTheme();
+  const [design, toggleDesign] = useDesign();
   const [draft, setDraft] = useState('');
   const { scroller, pin, scrolled } = useStickToBottom();
 
@@ -34,6 +36,15 @@ export const App = () => {
         <Wordmark />
         <div className={styles.controls}>
           <ThemeSwitch theme={theme} onChoose={chooseTheme} />
+          <button
+            type="button"
+            className={styles.design}
+            aria-pressed={design === 'deep'}
+            title="Switch between the flat and deep visual treatments"
+            onClick={toggleDesign}
+          >
+            {design === 'deep' ? 'Deep' : 'Flat'}
+          </button>
           {live && entries.length > 0 && (
             <button type="button" className={styles.clear} onClick={clear}>
               Clear

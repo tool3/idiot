@@ -16,6 +16,13 @@
   --on-accent: #ffffff;
   --danger: #ff6961;
   --veil: rgba(0, 0, 0, 0.72);
+  --accent-2: #64d2ff;
+  --wash: none;
+  --card-fill: var(--surface);
+  --card-ring: none;
+  --card-shadow: none;
+  --accent-fill: var(--accent);
+  --glow: none;
   color-scheme: dark;
 }
 
@@ -34,6 +41,13 @@
   --on-accent: #0b1017;
   --danger: #ff8b7e;
   --veil: rgba(21, 26, 33, 0.72);
+  --accent-2: #9f7dff;
+  --wash: none;
+  --card-fill: var(--surface);
+  --card-ring: none;
+  --card-shadow: none;
+  --accent-fill: var(--accent);
+  --glow: none;
   color-scheme: dark;
 }
 
@@ -52,6 +66,13 @@
   --on-accent: #ffffff;
   --danger: #d70015;
   --veil: rgba(255, 255, 255, 0.72);
+  --accent-2: #5e5ce6;
+  --wash: none;
+  --card-fill: var(--surface);
+  --card-ring: none;
+  --card-shadow: none;
+  --accent-fill: var(--accent);
+  --glow: none;
   color-scheme: light;
 }
 
@@ -62,14 +83,16 @@
 }
 
 html {
-  background: var(--bg);
+  background-color: var(--bg);
   -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   overflow: hidden;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: var(--wash);
+  background-attachment: fixed;
   color: var(--text);
   @include body;
   -webkit-font-smoothing: antialiased;

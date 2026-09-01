@@ -26,7 +26,8 @@
   padding: 0;
   border: none;
   border-radius: $radius;
-  background: var(--surface);
+  background: var(--card-fill);
+  box-shadow: var(--card-ring), var(--card-shadow);
   overflow: hidden;
 
   &:disabled {
@@ -96,7 +97,7 @@
   }
 
   .option[data-active='true'] & {
-    background: var(--accent);
+    background: var(--accent-fill);
     box-shadow: none;
     color: var(--on-accent);
   }
@@ -143,15 +144,17 @@
   border-radius: 999px;
   font-weight: 500;
   color: var(--on-accent);
-  background: var(--accent);
-  transition: opacity 0.2s $ease, transform 0.15s $ease;
+  background: var(--accent-fill);
+  box-shadow: var(--card-shadow);
+  transition: opacity 0.2s $ease, transform 0.2s $spring, box-shadow 0.2s $ease;
 
   &:hover {
-    opacity: 0.9;
+    opacity: 0.92;
+    transform: translateY(-1px);
   }
 
   &:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
 }
 
@@ -202,7 +205,8 @@
 .fill {
   height: 100%;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--accent-fill);
+  box-shadow: var(--glow);
   transform-origin: left;
   transition: transform 0.35s $ease;
 

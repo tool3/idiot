@@ -1,12 +1,12 @@
 .entry {
   padding: 1.5rem 0 0.5rem;
-  animation: rise 0.4s $ease both;
+  animation: rise 0.5s $spring both;
 }
 
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(0.375rem);
+    transform: translateY(0.75rem) scale(0.985);
   }
 }
 
@@ -30,7 +30,8 @@
 .card {
   margin-top: 1rem;
   border-radius: $radius;
-  background: var(--surface);
+  background: var(--card-fill);
+  box-shadow: var(--card-ring), var(--card-shadow);
   overflow: hidden;
 }
 
@@ -43,9 +44,17 @@
 
 .reading {
   padding: 1rem 1.125rem;
+  animation: unfold 0.4s $spring both;
 
   & + & {
     border-top: 1px solid var(--hairline);
+  }
+}
+
+@keyframes unfold {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
   }
 }
 
@@ -80,6 +89,7 @@
   vertical-align: -0.16em;
   border-radius: 1px;
   background: var(--accent);
+  box-shadow: var(--glow);
   animation: blink 1s steps(2, start) infinite;
 }
 

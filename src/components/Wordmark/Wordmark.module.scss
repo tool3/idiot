@@ -31,13 +31,13 @@
   white-space: nowrap;
 }
 
-@media (width < 34rem) {
+@media (width < 78rem) {
   .expansion {
     display: none;
   }
 }
 
-@media (width < 26rem) {
+@media (width < 30rem) {
   .gloss {
     display: none;
   }
