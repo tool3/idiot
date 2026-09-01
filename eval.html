@@ -1,0 +1,46 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>eval</title></head>
+<body><pre id="out" style="font:12px ui-monospace;white-space:pre-wrap"></pre>
+<script type="module">
+import { AutoModelForCausalLM, AutoTokenizer } from '@huggingface/transformers';
+import { buildMessages, recipeFor, tidy, mentionsPhrase, isFigurative, acceptableRepair } from '/src/ai/prompt.ts';
+const out = document.getElementById('out');
+const log = (m) => { out.textContent += m + '\n'; };
+const repo = new URLSearchParams(location.search).get('repo');
+
+const CASES = [
+  'blood is thicker than water', 'the pot calling the kettle black', 'she threw me under the bus',
+  'break a leg', 'once in a blue moon', 'he cut the mustard', 'a wild goose chase',
+  'that really cooked my goose', 'well slap my ass and call me sally', 'burning the candle at both ends',
+  'the early bird catches the worm', 'I went to the shop yesterday',
+];
+
+window.__done = false;
+try {
+  const t0 = performance.now();
+  const tokenizer = await AutoTokenizer.from_pretrained(repo);
+  const model = await AutoModelForCausalLM.from_pretrained(repo, { dtype: 'q4f16', device: 'webgpu' });
+  log(`== ${repo}  (load ${((performance.now()-t0)/1000).toFixed(1)}s)\n`);
+  const gen = async (stage, phrase) => {
+    const r = recipeFor(stage);
+    const inputs = tokenizer.apply_chat_template([...buildMessages(stage, phrase)], { add_generation_prompt: true, return_dict: true });
+    const o = await model.generate({ ...inputs, max_new_tokens: r.maxTokens,
+      ...(r.temperature > 0 ? { do_sample: true, temperature: r.temperature, top_p: 0.9 } : { do_sample: false }),
+      repetition_penalty: 1.05 });
+    const w = Number(inputs.input_ids.dims.at(-1));
+    const [t] = tokenizer.batch_decode(o.tolist().map((x) => x.slice(w)), { skip_special_tokens: true });
+    return tidy(stage, t);
+  };
+  for (const input of CASES) {
+    const c0 = performance.now();
+    const raw = await gen('repair', input);
+    const subject = acceptableRepair(input, raw) && raw.toLowerCase() !== input.toLowerCase() ? raw : input;
+    const v = await gen('verdict', subject);
+    const fig = isFigurative(v);
+    const meaning = fig ? await gen('meaning', subject) : '(plain)';
+    log(`${input}${subject !== input ? `  [->${subject}]` : ''}`);
+    log(`   ${fig ? '' : 'PLAIN  '}${meaning}   ${((performance.now()-c0)/1000).toFixed(1)}s`);
+  }
+} catch (e) { log('ERROR ' + (e?.message ?? e)); }
+window.__done = true;
+</script></body></html>

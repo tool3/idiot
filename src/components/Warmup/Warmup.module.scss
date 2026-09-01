@@ -1,0 +1,238 @@
+.warmup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: clamp(1.5rem, 6vh, 3.5rem) 0 2rem;
+}
+
+.pitch {
+  @include hero;
+  max-width: 30rem;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.sub {
+  @include body;
+  max-width: 32rem;
+  margin-top: 0.75rem;
+  color: var(--text-2);
+  text-wrap: pretty;
+}
+
+.picker {
+  width: 100%;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  border: none;
+  border-radius: $radius;
+  background: var(--surface);
+  overflow: hidden;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.legend {
+  @include label;
+  margin-top: 2rem;
+  color: var(--text-2);
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.option {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.125rem 0.75rem;
+  padding: 0.8125rem 1.125rem;
+  cursor: pointer;
+  transition: background 0.15s $ease;
+
+  & + & {
+    box-shadow: inset 0 1px 0 var(--hairline);
+  }
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &:has(input:focus-visible) {
+    @include focus-ring;
+    outline-offset: -2px;
+  }
+
+  .picker:not(:disabled) &:hover {
+    background: var(--surface-2);
+  }
+}
+
+.tick {
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--separator);
+  color: transparent;
+  transition: background 0.2s $ease, box-shadow 0.2s $ease, color 0.2s $ease;
+
+  svg {
+    width: 0.625rem;
+    height: 0.625rem;
+  }
+
+  .option[data-active='true'] & {
+    background: var(--accent);
+    box-shadow: none;
+    color: var(--on-accent);
+  }
+}
+
+.optionName {
+  @include body;
+  color: var(--text);
+}
+
+.params {
+  color: var(--text-2);
+}
+
+.optionNote {
+  @include caption;
+  grid-column: 2;
+  color: var(--text-2);
+}
+
+.optionSize {
+  @include caption;
+  grid-row: 1 / span 2;
+  grid-column: 3;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.broken {
+  @include subhead;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.875rem 1.125rem;
+  border-radius: $radius-sm;
+  color: var(--danger);
+  background: var(--surface);
+}
+
+.start {
+  @include body;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 500;
+  color: var(--on-accent);
+  background: var(--accent);
+  transition: opacity 0.2s $ease, transform 0.15s $ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 1.75rem;
+}
+
+.readout {
+  display: flex;
+  align-items: baseline;
+  gap: 0.125rem;
+}
+
+.percent {
+  font-family: $display;
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.percentMark {
+  font-family: $display;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+.stage {
+  @include subhead;
+  margin-left: auto;
+  color: var(--text-2);
+}
+
+.track {
+  height: 0.375rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transform-origin: left;
+  transition: transform 0.35s $ease;
+
+  &[data-indeterminate='true'] {
+    animation: sweep 1.2s $ease infinite;
+  }
+}
+
+@keyframes sweep {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  50% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  51% {
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: right;
+  }
+}
+
+.backend {
+  @include caption;
+  margin-top: 1.25rem;
+  max-width: 32rem;
+  color: var(--text-3);
+}

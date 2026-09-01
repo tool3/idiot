@@ -1,0 +1,98 @@
+.entry {
+  padding: 1.5rem 0 0.5rem;
+  animation: rise 0.4s $ease both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem);
+  }
+}
+
+.phrase {
+  @include hero;
+  color: var(--text);
+  text-wrap: pretty;
+}
+
+.repair {
+  @include caption;
+  margin-top: 0.5rem;
+  color: var(--text-3);
+}
+
+.typed {
+  text-decoration: line-through;
+  text-decoration-color: var(--danger);
+}
+
+.card {
+  margin-top: 1rem;
+  border-radius: $radius;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.plain {
+  @include subhead;
+  padding: 0.875rem 1.125rem;
+  color: var(--text-2);
+  background: var(--accent-soft);
+}
+
+.reading {
+  padding: 1rem 1.125rem;
+
+  & + & {
+    border-top: 1px solid var(--hairline);
+  }
+}
+
+.label {
+  @include label;
+  color: var(--text-2);
+}
+
+.text {
+  @include body;
+  margin-top: 0.25rem;
+  color: var(--text);
+  text-wrap: pretty;
+  min-height: 1.48em;
+
+  .reading[data-tone='muted'] & {
+    color: var(--text-2);
+  }
+}
+
+.broken {
+  @include subhead;
+  padding: 1rem 1.125rem;
+  color: var(--danger);
+}
+
+.caret {
+  display: inline-block;
+  width: 0.5rem;
+  height: 1.05em;
+  margin-left: 0.125rem;
+  vertical-align: -0.16em;
+  border-radius: 1px;
+  background: var(--accent);
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.meta {
+  @include caption;
+  margin-top: 0.625rem;
+  padding: 0 0.25rem;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
