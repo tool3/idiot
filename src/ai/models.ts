@@ -57,6 +57,9 @@ export const MODELS: readonly ModelSpec[] = [
   },
 ] as const;
 
+export const formatSize = (megabytes: number): string =>
+  megabytes >= 1000 ? `${(megabytes / 1000).toFixed(1)} GB` : `${megabytes} MB`;
+
 export const modelById = (id: ModelId): ModelSpec =>
   MODELS.find((model) => model.id === id) ?? MODELS[2];
 

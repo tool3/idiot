@@ -168,11 +168,13 @@
 
 .readout {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.125rem;
+  min-height: 2.5rem;
 }
 
 .percent {
+  align-self: baseline;
   font-family: $display;
   font-size: 2.5rem;
   font-weight: 600;
@@ -183,10 +185,32 @@
 }
 
 .percentMark {
+  align-self: baseline;
   font-family: $display;
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-3);
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 3px solid var(--separator);
+  border-top-color: var(--accent);
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.transferred {
+  @include caption;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
 }
 
 .stage {

@@ -1,4 +1,4 @@
-import { MODELS, type ModelId, type ModelSpec } from '@/ai/models';
+import { MODELS, formatSize, type ModelId, type ModelSpec } from '@/ai/models';
 import type { Backend } from '@/ai/protocol';
 import type { Status } from '@/ai/translator';
 import styles from './Warmup.module.scss';
@@ -17,6 +17,15 @@ type Props = {
 const tooBig = (spec: ModelSpec, backend: Backend | null, vram: number) =>
   backend === 'webgpu' && vram > 0 && spec.megabytes.webgpu > vram;
 
+const isDownloading = (status: Status) => status.phase === 'fetching' && status.percent < 99.5;
+
+const stageLabel = (status: Status) =>
+  status.phase === 'compiling'
+    ? 'Warming the model up'
+    : isDownloading(status)
+      ? 'Downloading weights'
+      : 'Compiling for your GPU';
+
 const percentOf = (status: Status) => (status.phase === 'fetching' ? status.percent : 100);
 
 export const Warmup = ({
@@ -31,6 +40,7 @@ export const Warmup = ({
 }: Props) => {
   const busy = status.phase !== 'cold' && status.phase !== 'broken';
   const percent = percentOf(status);
+  const downloading = isDownloading(status);
 
   return (
     <section className={styles.warmup}>
@@ -71,11 +81,13 @@ export const Warmup = ({
               {tooBig(spec, backend, vram) && (
                 <span className={styles.caution}>
                   {' '}
-                  Larger than the {vram} MB this GPU reports — it may fail to allocate.
+                  Larger than the {formatSize(vram)} this GPU reports — it may fail to allocate.
                 </span>
               )}
             </span>
-            <span className={styles.optionSize}>{spec.megabytes[backend ?? 'webgpu']} MB</span>
+            <span className={styles.optionSize}>
+              {formatSize(spec.megabytes[backend ?? 'webgpu'])}
+            </span>
           </label>
         ))}
         <label className={styles.option} data-active={model === 'custom'}>
@@ -124,26 +136,41 @@ export const Warmup = ({
       {busy ? (
         <div className={styles.loading}>
           <div className={styles.readout}>
-            <span className={styles.percent}>{Math.round(percent)}</span>
-            <span className={styles.percentMark}>%</span>
-            <span className={styles.stage}>
-              {status.phase === 'compiling' ? 'Warming up the graph' : 'Downloading weights'}
-            </span>
+            {downloading ? (
+              <>
+                <span className={styles.percent}>{Math.round(percent)}</span>
+                <span className={styles.percentMark}>%</span>
+              </>
+            ) : (
+              <span className={styles.spinner} aria-hidden="true" />
+            )}
+            <span className={styles.stage}>{stageLabel(status)}</span>
           </div>
           <div
             className={styles.track}
             role="progressbar"
-            aria-valuenow={Math.round(percent)}
+            aria-valuenow={downloading ? Math.round(percent) : undefined}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label="Model download"
+            aria-label={stageLabel(status)}
           >
             <div
               className={styles.fill}
-              data-indeterminate={status.phase === 'compiling'}
-              style={{ transform: `scaleX(${percent / 100})` }}
+              data-indeterminate={!downloading}
+              style={downloading ? { transform: `scaleX(${percent / 100})` } : undefined}
             />
           </div>
+          {downloading && status.phase === 'fetching' && status.total > 0 && (
+            <p className={styles.transferred}>
+              {formatSize(Math.round(status.loaded / 1048576))} of{' '}
+              {formatSize(Math.round(status.total / 1048576))}
+            </p>
+          )}
+          {!downloading && (
+            <p className={styles.transferred}>
+              This takes a moment on a first run and is not repeated.
+            </p>
+          )}
         </div>
       ) : (
         <button
@@ -159,7 +186,7 @@ export const Warmup = ({
       <p className={styles.backend}>
         {backend === 'wasm'
           ? 'No WebGPU in this browser, so everything runs on the CPU. The small model is picked for you — the larger ones will crawl.'
-          : `Running on WebGPU, which reports ${vram} MB of usable buffer. Answers land in about a second once the weights are in.`}
+          : `Running on WebGPU, which reports ${formatSize(vram)} of usable buffer. Answers land in about a second once the weights are in.`}
       </p>
     </section>
   );
