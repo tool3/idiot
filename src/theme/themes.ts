@@ -1,3 +1,5 @@
+import { paintFavicon } from './mark';
+
 export type ThemeId = 'ink' | 'slate' | 'paper';
 
 export type Theme = { readonly id: ThemeId; readonly name: string; readonly swatch: string };
@@ -29,6 +31,7 @@ export const startingTheme = (): ThemeId => remembered() ?? preferred();
 
 export const applyTheme = (theme: ThemeId) => {
   document.documentElement.dataset.theme = theme;
+  paintFavicon();
   try {
     localStorage.setItem(STORE, theme);
   } catch {

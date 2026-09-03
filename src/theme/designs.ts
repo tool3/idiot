@@ -1,3 +1,5 @@
+import { paintFavicon } from './mark';
+
 export type DesignId = 'flat' | 'deep';
 
 const STORE = 'idiot.design';
@@ -15,6 +17,7 @@ export const startingDesign = (): DesignId => {
 
 export const applyDesign = (design: DesignId) => {
   document.documentElement.dataset.design = design;
+  paintFavicon();
   try {
     localStorage.setItem(STORE, design);
   } catch {

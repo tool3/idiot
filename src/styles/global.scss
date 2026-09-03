@@ -38,7 +38,7 @@
   --hairline: rgba(154, 167, 184, 0.12);
   --accent: #6e9bff;
   --accent-soft: rgba(110, 155, 255, 0.16);
-  --on-accent: #0b1017;
+  --on-accent: #ffffff;
   --danger: #ff8b7e;
   --veil: rgba(21, 26, 33, 0.72);
   --accent-2: #9f7dff;
@@ -74,6 +74,11 @@
   --accent-fill: var(--accent);
   --glow: none;
   color-scheme: light;
+}
+
+:root {
+  --mark-from: var(--accent);
+  --mark-to: var(--accent);
 }
 
 *,
